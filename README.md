@@ -9,7 +9,7 @@ To set up this project, you will need:
 
 
 
-## Running the Program  
+## Running the Program (Must clone repository first of course)
 1. Open the `transactions.py` file in VS Code.  
 2. Open a terminal in VS Code and run the program with:  
    ```bash  
