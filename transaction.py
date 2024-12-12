@@ -1,21 +1,21 @@
 class InMemoryDB:
     def __init__(self):
-        self.db = {}  # Main database
-        self.temp = {}  # Temporary storage for transactions
-        self.transaction = False  # Transaction state
+        self.db = {}  # Stores the primary state of the database
+        self.temp = {}  # Temporary storage for changes during a transaction
+        self.transaction = False  # Indicates if a transaction is currently active
 
     def get(self, key):
         """
-        Returns the value associated with the key or None if the key does not exist.
-        Can be called anytime, even when a transaction is not in progress.
+Retrieves the value for the given key from the main database. If the key does not exist, returns None.
+    This method can be used regardless of whether a transaction is active.
         """
         return self.db.get(key, None)
 
     def put(self, key, val):
         """
-        Creates a new key with the provided value if the key does not exist.
-        Otherwise, updates the value of an existing key.
-        Raises an exception if a transaction is not in progress.
+        adds a new key-value pair to the temporary transaction storage or updates the value
+        of an existing key. 
+        Raises an exception if no transaction is in progress.
         """
         if not self.transaction:
             raise Exception("Transaction is not in progress")
@@ -23,17 +23,17 @@ class InMemoryDB:
 
     def begin_transaction(self):
         """
-        Starts a new transaction.
-        At a time, only a single transaction may exist.
+    Initializes a transaction. Prevents starting another transaction if one is already active.
+     During a transaction, changes are stored in a temporary buffer and only
+        applied to the main database upon commit.
         """
         if self.transaction:
             raise Exception("Cannot have more than one open transaction")
         self.transaction = True
 
     def commit(self):
-        """
-        Applies changes made within the transaction to the main state.
-        Allowing any future `get()` to see the changes made within the transaction.
+        """ Finalizes the active transaction by merging the temporary changes 
+         Clears the transaction state and temporary buffer after committing.
         """
         if not self.transaction:
             raise Exception("No open transaction")
@@ -43,8 +43,8 @@ class InMemoryDB:
 
     def rollback(self):
         """
-        Aborts all the changes made within the transaction.
-        Everything goes back to the way it was before the transaction started.
+        Cancels all changes made during the active transaction, restoring the database
+        to its previous state. Clears the transaction state and temporary buffer.
         """
         if not self.transaction:
             raise Exception("No ongoing transaction")
